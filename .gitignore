@@ -1,0 +1,49 @@
+### macOS ###
+.DS_Store
+
+### 공통 ###
+# 업로드 파일 저장 폴더 (로컬 전용)
+upload/
+
+# =========================================================
+# backend/ (Spring Boot · Gradle)
+# =========================================================
+HELP.md
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### IntelliJ / STS ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+
+# 환경별 설정 (비밀번호 등)
+application-local.yml
+application-local.properties
+
+# =========================================================
+# frontend/ (Next.js · npm)
+# =========================================================
+node_modules/
+.next/
+next-env.d.ts
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+### VS Code ###
+.vscode/
