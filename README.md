@@ -19,13 +19,14 @@
 ```
 ebrainstudy-template-week-3/
 ├── backend/     # Spring Boot REST API (이슈 #2에서 직접 생성)
-├── frontend/    # Next.js 앱          (이슈 #3에서 직접 생성)
+├── frontend/    # Next.js 앱          (이슈 #12에서 직접 생성)
 ├── docker/      # MySQL (미리 제공)
 ├── nginx/       # 리버스 프록시 설정  (이슈 #16에서 직접 생성)
 └── study/       # 학습 노트
 ```
 
-> `backend/`, `frontend/`, `nginx/`는 **비어 있다.** 셋업 자체가 학습 대상이라 이슈 #2·#3·#16에서 직접 만든다.
+> `backend/`, `frontend/`, `nginx/`는 **비어 있다.** 셋업 자체가 학습 대상이라 이슈 #2·#12·#16에서 직접 만든다.
+> **API를 먼저 전부 완성(#2~#11)한 뒤 프론트(#12~#15)를 만들고**, 마지막에 nginx로 통합(#16)한다.
 
 ## 학습 루틴
 
@@ -37,20 +38,20 @@ ebrainstudy-template-week-3/
 **0단계 — 개념 & 셋업**
 - [ ] #1 3주차 오리엔테이션: REST API란 + 서버/프론트 분리 아키텍처
 - [ ] #2 백엔드 셋업: Spring Boot API 프로젝트 + MySQL + MyBatis
-- [ ] #3 프론트 셋업: Next.js(App Router) + axios + React Query
-- [ ] #4 공통 응답 규격(ApiResponse) + 도메인/DTO
 
-**1단계 — 백엔드 REST API**
-- [ ] #5 목록 API `GET /api/boards` (검색 + 페이징)
-- [ ] #6 상세 API `GET /api/boards/{seq}` + 조회수 증가
-- [ ] #7 등록 API `POST /api/boards` + 서버 검증
-- [ ] #8 수정 API `PUT /api/boards/{seq}` (비번 확인)
-- [ ] #9 삭제 API `DELETE /api/boards/{seq}` (비번 확인)
-- [ ] #10 댓글 API (목록 + 등록)
-- [ ] #11 파일 업로드/다운로드 API (multipart + binary)
-- [ ] #12 전역 예외 처리 → HTTP 상태코드 매핑 + CORS
+**1단계 — 백엔드 REST API (여기까지 API 완성이 목표)**
+- [ ] #3 공통 응답 규격(ApiResponse) + 도메인/DTO
+- [ ] #4 목록 API `GET /api/boards` (검색 + 페이징)
+- [ ] #5 상세 API `GET /api/boards/{seq}` + 조회수 증가
+- [ ] #6 등록 API `POST /api/boards` + 서버 검증
+- [ ] #7 수정 API `PUT /api/boards/{seq}` (비번 확인)
+- [ ] #8 삭제 API `DELETE /api/boards/{seq}` (비번 확인)
+- [ ] #9 댓글 API (목록 + 등록)
+- [ ] #10 파일 업로드/다운로드 API (multipart + binary)
+- [ ] #11 전역 예외 처리 → HTTP 상태코드 매핑 + CORS
 
-**2단계 — 프론트엔드 (Next)**
+**2단계 — 프론트엔드 (Next) — API 완성 후 착수**
+- [ ] #12 프론트 셋업: Next.js(App Router) + axios + React Query
 - [ ] #13 목록 페이지 (검색/페이징 + React Query 연동)
 - [ ] #14 보기 페이지 (상세 + 댓글 + 파일 다운로드)
 - [ ] #15 등록/수정 폼 (프론트 검증 + 서버 에러 표시 + 비번 확인 + 삭제)
