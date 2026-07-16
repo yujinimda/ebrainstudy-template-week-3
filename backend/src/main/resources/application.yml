@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: board-api
+  datasource:
+    url: jdbc:mysql://localhost:3310/ebrainsoft_study?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ebsoft
+    password: ebsoft
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  configuration:
+    # DB의 snake_case 컬럼(created_at)을 자바 camelCase 필드(createdAt)에 자동 매핑
+    map-underscore-to-camel-case: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.ebsoft.board: debug
