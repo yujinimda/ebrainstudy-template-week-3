@@ -25,6 +25,13 @@
   }
   ```
 - **Controller가 Map/객체를 반환하면 Spring이 JSON으로 직렬화**해준다 (화면을 "그리는" 게 아님).
+- **메서드 = 그 객체가 가지고 있는 기능(행동)** (나중에 다시 확인한 것):
+  ```
+  객체.메서드(값)   →   누가.무엇을한다(재료)
+  boardService.getBoard(3L)  →  "boardService야, 3번 글 조회 기능을 실행해줘"
+  ```
+  - 프론트도 똑같다: `console.log(...)`(console 객체의 log 메서드), `array.push(...)`(배열 객체의 push 메서드).
+  - 매퍼 인터페이스에 선언한 것들(`findById`, `increaseViewCount`...)도 전부 "boardMapper 객체가 가진 기능"이다.
 
 ## 2주차와 뭐가 다른가
 - 2주차: `@Controller` + Thymeleaf → 뷰(HTML) 반환.
