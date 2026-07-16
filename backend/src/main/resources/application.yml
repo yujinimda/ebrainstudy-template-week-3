@@ -8,6 +8,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
+  # XML 매퍼 파일 위치 (동적 SQL은 애노테이션보다 XML이 편함)
+  mapper-locations: classpath:mapper/*.xml
   configuration:
     # DB의 snake_case 컬럼(created_at)을 자바 camelCase 필드(createdAt)에 자동 매핑
     map-underscore-to-camel-case: true

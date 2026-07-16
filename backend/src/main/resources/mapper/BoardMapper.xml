@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace = 이 XML이 구현하는 매퍼 인터페이스의 전체 경로 -->
+<mapper namespace="com.ebsoft.board.board.mapper.BoardMapper">
+
+    <!--
+      검색 WHERE 조각. findBoards / countBoards가 <include>로 공유한다.
+      <where> : 안에 조건이 하나도 없으면 WHERE 자체를 안 붙이고,
+                있으면 맨 앞의 AND를 자동으로 떼 준다.
+    -->
+    <sql id="searchWhere">
+        <where>
+            <!-- 검색어: 제목 또는 내용에 keyword 포함 (예시 — 이걸 참고하세요) -->
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%')
+                  OR content LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+
+            <!-- 카테고리 필터: categoryId가 있을 때만 -->
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+
+        </where>
+    </sql>
+
+    <!-- 이번 페이지 목록: 최신순, size개씩, offset만큼 건너뛰고 -->
+    <select id="findBoards"
+            parameterType="com.ebsoft.board.board.dto.BoardSearchRequest"
+            resultType="com.ebsoft.board.board.domain.Board">
+        SELECT board_id, category_id, title, content, writer, view_count, created_at, updated_at
+        FROM board
+        <include refid="searchWhere"/>
+        ORDER BY board_id DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 조건에 맞는 전체 개수 (같은 searchWhere 재사용 -> 목록과 count가 항상 일치) -->
+    <select id="countBoards"
+            parameterType="com.ebsoft.board.board.dto.BoardSearchRequest"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM board
+        <include refid="searchWhere"/>
+    </select>
+
+</mapper>

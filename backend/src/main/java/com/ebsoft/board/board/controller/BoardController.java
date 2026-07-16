@@ -1,0 +1,34 @@
+package com.ebsoft.board.board.controller;
+
+import com.ebsoft.board.board.dto.BoardResponse;
+import com.ebsoft.board.board.dto.BoardSearchRequest;
+import com.ebsoft.board.board.service.BoardService;
+import com.ebsoft.board.common.ApiResponse;
+import com.ebsoft.board.common.PageResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 게시글 API. @RequestMapping("/api/boards")로 이 컨트롤러의 공통 URL을 잡아둔다.
+ */
+@RestController
+@RequestMapping("/api/boards")
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    /**
+     * 목록 조회: GET /api/boards?keyword=&categoryId=&page=&size=
+     * 쿼리 파라미터는 BoardSearchRequest에 자동 바인딩된다(@RequestParam 없이 객체로 받기).
+     * 응답은 공통 봉투로 감싼다: { success, data: { content, page, ... }, message }
+     */
+    @GetMapping
+    public ApiResponse<PageResponse<BoardResponse>> getBoards(BoardSearchRequest search) {
+        return ApiResponse.ok(boardService.getBoards(search));
+    }
+}
