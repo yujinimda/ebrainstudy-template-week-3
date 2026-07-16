@@ -32,6 +32,21 @@ GET /api/boards?keyword=&categoryId=&page=&size=
 - 문자열은 `''`(빈문자)까지 체크, **숫자(categoryId)는 null 체크만**.
 - `#{...}` : 파라미터 바인딩(값을 안전하게 꽂음). 문자열 이어붙이기가 아니라서 **SQL 인젝션 방지**.
 
+#### 검색어(LIKE) vs 카테고리(=) — 비교 방식이 다르다 (오늘 헷갈렸던 것)
+- **검색어 = "포함"을 찾음** → `LIKE '%키워드%'`
+  - `title LIKE CONCAT('%', #{keyword}, '%')` → keyword가 "자바"면 `title LIKE '%자바%'` → "자바 공부하기"처럼 자바가 **들어간** 글.
+  - `CONCAT('%', ..., '%')` = 값 앞뒤에 `%`(아무 글자나)를 붙여 "부분 일치"를 만드는 것.
+- **카테고리 = "정확히 같음"을 찾음** → `=`
+  - `AND category_id = #{categoryId}` → categoryId가 3이면 `category_id = 3` → cat 3인 글만.
+  - `category_id`(DB 컬럼) `=`(정확히 같은지) `#{categoryId}`(자바가 넘긴 값). "DB의 category_id가 넘어온 값과 같은 글만 조회".
+- 그래서 카테고리는 LIKE/CONCAT이 필요 없다 — 부분 일치가 아니라 번호가 딱 맞는지만 보면 되니까.
+
+#### `<if>`가 거짓이면? — else 없이 "그 줄이 통째로 빠진다" (오늘 새로 안 것)
+- `<if>`는 자바 `if`와 같고 **else가 없다**. 조건이 거짓이면 다른 값이 나오는 게 아니라, **그 SQL 조각이 아예 안 들어간다.**
+  - `categoryId = 3` → `... AND category_id = 3` (필터 적용)
+  - `categoryId = null` → 그 줄이 사라짐 → `WHERE`에 카테고리 조건 없이 **전체 카테고리** 조회
+- 즉 "조건이 있으면 SQL에 붙이고, 없으면 그냥 건너뛴다"가 동적 SQL의 핵심.
+
 ### 3. 페이징
 - `LIMIT #{size} OFFSET #{offset}` 로 잘라 옴. `offset = (page-1) * size` (page 3, size 10 → 20).
 - 전체 개수는 **count 쿼리 따로**. `totalPages = ceil(totalElements / size)`.
