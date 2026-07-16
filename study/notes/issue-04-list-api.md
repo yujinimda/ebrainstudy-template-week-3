@@ -57,6 +57,22 @@ GET /api/boards?keyword=&categoryId=&page=&size=
 - XML `namespace` = 매퍼 인터페이스 전체 경로, `<select id="findBoards">` = 인터페이스 메서드 이름 → 이름으로 연결.
 - `<sql id="searchWhere">` + `<include refid="searchWhere"/>` 로 목록/count가 같은 WHERE 재사용 → 둘이 항상 일치.
 
+#### namespace/id가 자바와 "이름으로" 연결되는 구조 (오늘 새로 안 것)
+- `<select id="findById">`의 **id는 매퍼 인터페이스의 메서드 이름**이다. 자바에서 `boardMapper.findById(3L)`을 호출하면 MyBatis가 이 XML에서 같은 id를 찾아 그 SQL을 실행한다.
+```
+BoardMapper 인터페이스 전체 경로  ↔  <mapper namespace="...">
+BoardMapper.findById(...)        ↔  <select id="findById">
+                                      ↓ SQL 실행 → 결과를 Board 객체로 변환
+```
+- 즉 namespace = "어떤 인터페이스인지", id = "그 인터페이스의 어떤 메서드인지". 인터페이스에 구현 클래스가 없어도 동작하는 이유가 이것 — **XML이 곧 구현**이다.
+
+#### `<sql>` vs `<select>` — 조각과 실행 쿼리 (오늘 새로 안 것)
+- `<select>` / `<update>` 등 : **실제로 DB에 날아가는 실행 쿼리.** 인터페이스 메서드와 1:1로 연결된다.
+- `<sql>` : 혼자서는 실행되지 않는 **재사용용 SQL 조각**. 프론트로 치면 공용 유틸 함수 같은 것. 인터페이스 메서드와 연결되지 않는다.
+- `<include refid="...">` : `<sql>` 조각을 그 자리에 붙여넣기. 실행 시점엔 합쳐진 하나의 SQL이 된다.
+- `#{categoryId}` 다시 정리: `category_id`(DB 컬럼) `=` `#{categoryId}`(자바에서 넘어온 값) → "DB의 카테고리 번호가 자바가 넘긴 번호와 같은 글만".
+- **"쿼리"라는 말의 범위** (오늘 새로 안 것): 넓게는 SQL로 쓴 명령문 전부지만, 보통은 **완성되어 DB에 실제 전달되는 문장**(`SELECT ...` 등)을 뜻한다. 그래서 `<select>/<insert>/<update>/<delete>`는 쿼리이고, `<sql>`은 쿼리가 아니라 **쿼리에 끼워 넣는 조각**. `<include>`로 합쳐진 뒤에야 하나의 쿼리가 된다.
+
 ## 2주차와 뭐가 다른가
 - 2주차 검색/페이징 SQL은 재활용 가능(동적 SQL 개념 동일). 다만 결과를 화면(Thymeleaf)에 뿌리던 걸, 이제 `PageResponse`로 만들어 JSON으로 응답.
 

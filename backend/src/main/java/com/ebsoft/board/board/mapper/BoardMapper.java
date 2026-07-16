@@ -3,6 +3,7 @@ package com.ebsoft.board.board.mapper;
 import com.ebsoft.board.board.domain.Board;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,4 +19,10 @@ public interface BoardMapper {
 
     // 검색 조건에 맞는 전체 개수 (페이징의 totalElements 용)
     long countBoards(BoardSearchRequest search);
+
+    // 게시글 1건 조회 (없으면 null). @Param 으로 XML에서 #{boardId}로 참조.
+    Board findById(@Param("boardId") Long boardId);
+
+    // 조회수 +1 (반환값 = 실제 바뀐 행 수)
+    int increaseViewCount(@Param("boardId") Long boardId);
 }

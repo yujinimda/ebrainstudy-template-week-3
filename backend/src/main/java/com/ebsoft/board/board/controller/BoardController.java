@@ -6,6 +6,7 @@ import com.ebsoft.board.board.service.BoardService;
 import com.ebsoft.board.common.ApiResponse;
 import com.ebsoft.board.common.PageResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,5 +31,18 @@ public class BoardController {
     @GetMapping
     public ApiResponse<PageResponse<BoardResponse>> getBoards(BoardSearchRequest search) {
         return ApiResponse.ok(boardService.getBoards(search));
+    }
+
+    /**
+     * 상세 조회: GET /api/boards/{seq}  (예: /api/boards/24)
+     * URL 경로의 값을 @PathVariable로 받는다. 조회 시 조회수 +1.
+     */
+    @GetMapping("/{seq}")
+    public ApiResponse<BoardResponse> getBoard(@PathVariable Long seq) {
+        BoardResponse board = boardService.getBoard(seq);
+        if (board == null) {
+            return ApiResponse.fail("게시글을 찾을 수 없습니다: " + seq);
+        }
+        return ApiResponse.ok(board);
     }
 }
