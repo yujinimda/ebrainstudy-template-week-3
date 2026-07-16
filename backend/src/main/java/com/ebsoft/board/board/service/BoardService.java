@@ -40,4 +40,18 @@ public class BoardService {
 
         return new PageResponse<>(content, search.getPage(), search.getSize(), totalElements, totalPages);
     }
+
+    /**
+     * 상세 조회 + 조회수 증가.
+     * 먼저 +1 하고 조회하므로, 응답에는 증가된 조회수가 담긴다.
+     * 없는 글이면 null 반환(컨트롤러가 실패 응답으로 처리; 제대로 된 404는 #11).
+     */
+    public BoardResponse getBoard(Long boardId) {
+        boardMapper.increaseViewCount(boardId);          // 조회수 +1 (없는 id면 0행, 무해)
+        Board board = boardMapper.findById(boardId);     // 증가된 상태로 1건 조회
+        if (board == null) {
+            return null;
+        }
+        return BoardResponse.from(board);
+    }
 }

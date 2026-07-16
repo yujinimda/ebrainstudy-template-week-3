@@ -46,4 +46,28 @@
         <include refid="searchWhere"/>
     </select>
 
+    <!-- 게시글 1건 조회 (예시 — 이걸 참고하세요) -->
+    <select id="findById" resultType="com.ebsoft.board.board.domain.Board">
+        SELECT board_id, category_id, title, content, writer, view_count, created_at, updated_at
+        FROM board
+        WHERE board_id = #{boardId}
+    </select>
+
+    <!-- TODO(human): 조회수 +1 UPDATE 쿼리를 작성하세요.
+         목표 : board_id 가 #{boardId} 인 글의 view_count 를 1 올린다
+         구조 : <update id="increaseViewCount"> ... </update>  (위 <select> 흉내내되 UPDATE)
+         SQL  : UPDATE board SET view_count = <????> WHERE board_id = #{boardId}
+         힌트 : "현재 값 + 1" 을 DB에서 직접 계산 -> view_count = view_count + 1
+                (앱에서 읽어와 더하지 않는다. 그래야 동시에 여러 명이 봐도 안 샌다.)
+    -->
+    <update id="increaseViewCount">
+        UPDATE board
+        SET view_count = view_count + 1
+        WHERE board_id = #{boardId}
+    </update>
+
+
+
+
+
 </mapper>
