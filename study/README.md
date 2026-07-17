@@ -11,3 +11,4 @@
 - [#3 공통 응답 규격(ApiResponse) + 도메인/DTO](notes/issue-03-api-response-dto.md)
 - [#4 목록 API GET /api/boards (검색 + 페이징)](notes/issue-04-list-api.md)
 - [#6 등록 API POST /api/boards (검증 + 비밀번호 해시)](notes/issue-06-create-api.md)
+- [#7 수정 API PUT /api/boards/{seq} (비밀번호 확인)](notes/issue-07-update-api.md)
