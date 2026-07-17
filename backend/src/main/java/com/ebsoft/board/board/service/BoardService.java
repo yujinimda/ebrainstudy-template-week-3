@@ -2,12 +2,14 @@ package com.ebsoft.board.board.service;
 
 import com.ebsoft.board.board.domain.Board;
 import com.ebsoft.board.board.dto.BoardCreateRequest;
+import com.ebsoft.board.board.dto.BoardDeleteRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
 import com.ebsoft.board.board.dto.BoardUpdateRequest;
 import com.ebsoft.board.board.mapper.BoardMapper;
 import com.ebsoft.board.common.PageResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -136,6 +138,38 @@ public class BoardService {
         boardMapper.updateBoard(board);
         return UpdateResult.SUCCESS;
 
+    }
+
+    /** 삭제 결과 신호 (수정과 동일한 세 경우). 컨트롤러가 상태코드로 번역한다. */
+    public enum DeleteResult { SUCCESS, NOT_FOUND, WRONG_PASSWORD }
+
+    /**
+     * 게시글 삭제. 비밀번호 확인 후, 연관 데이터(댓글/첨부)까지 함께 지운다.
+     *
+     * @Transactional : 아래 여러 DELETE를 "전부 성공 or 전부 취소(롤백)"로 묶는다.
+     *   중간에 하나라도 실패하면 앞서 지운 것도 되돌아간다 → 자식만 지워지고 글은 남는 반쪽 상태 방지.
+     *   (비번 불일치는 삭제를 시작하기도 전에 return 하므로 아무것도 안 지워진다.)
+     */
+    @Transactional
+    public DeleteResult deleteBoard(Long boardId, BoardDeleteRequest request) {
+        // 1) 대상 글 조회 — 없으면 지울 게 없다
+        Board board = boardMapper.findById(boardId);
+        if (board == null) {
+            return DeleteResult.NOT_FOUND;
+        }
+
+        // 2) 비밀번호 확인 (#7과 동일: 입력 비번을 해시해서 저장된 해시와 비교)
+        if (!sha256(request.getPassword()).equals(board.getPassword())) {
+            return DeleteResult.WRONG_PASSWORD;
+        }
+
+        // 3) 연관 데이터부터 삭제 후 글 삭제 — FK 때문에 자식(댓글·첨부)이 먼저다
+        //    (세 DELETE는 @Transactional 로 한 묶음 = 원자적으로 실행됨)
+        boardMapper.deleteCommentsByBoardId(boardId);
+        boardMapper.deleteAttachmentsByBoardId(boardId);
+        boardMapper.deleteBoard(boardId);
+
+        return DeleteResult.SUCCESS;
     }
 
     private String sha256(String raw) {
