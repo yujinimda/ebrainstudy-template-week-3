@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace = 이 XML이 구현하는 매퍼 인터페이스 전체 경로 -->
+<mapper namespace="com.ebsoft.board.attachment.mapper.AttachmentMapper">
+
+    <!-- 첨부 메타 INSERT. 실제 파일은 디스크에, 여기엔 메타만.
+         attachment_id는 AUTO_INCREMENT, created_at은 DEFAULT NOW → INSERT에서 뺀다. -->
+    <insert id="insertAttachment"
+            parameterType="com.ebsoft.board.attachment.domain.Attachment"
+            useGeneratedKeys="true" keyProperty="attachmentId">
+        INSERT INTO attachment (board_id, original_name, stored_name, file_size)
+        VALUES (#{boardId}, #{originalName}, #{storedName}, #{fileSize})
+    </insert>
+
+    <!-- 첨부 1건 조회 (다운로드용 — stored_name/original_name 필요) -->
+    <select id="findById" resultType="com.ebsoft.board.attachment.domain.Attachment">
+        SELECT attachment_id, board_id, original_name, stored_name, file_size, created_at
+        FROM attachment
+        WHERE attachment_id = #{attachmentId}
+    </select>
+
+    <!-- 특정 글의 첨부 목록 -->
+    <select id="findByBoardId" resultType="com.ebsoft.board.attachment.domain.Attachment">
+        SELECT attachment_id, board_id, original_name, stored_name, file_size, created_at
+        FROM attachment
+        WHERE board_id = #{boardId}
+        ORDER BY attachment_id
+    </select>
+
+</mapper>

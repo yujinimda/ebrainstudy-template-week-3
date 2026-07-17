@@ -13,3 +13,5 @@
 - [#6 등록 API POST /api/boards (검증 + 비밀번호 해시)](notes/issue-06-create-api.md)
 - [#7 수정 API PUT /api/boards/{seq} (비밀번호 확인)](notes/issue-07-update-api.md)
 - [#8 삭제 API DELETE /api/boards/{seq} (비번 확인 + 연관 삭제/트랜잭션)](notes/issue-08-delete-api.md)
+- [#10 파일 업로드/다운로드 API (multipart + 바이너리)](notes/issue-10-file-api.md)
+- [대용량 파일 업로드 (청크 / S3 멀티파트) — 개념](notes/issue-28-large-file-upload.md) · 이슈 #28
