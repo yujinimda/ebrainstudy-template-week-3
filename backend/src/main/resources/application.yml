@@ -6,6 +6,15 @@ spring:
     username: ebsoft
     password: ebsoft
     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      # 파일 하나 최대 크기 / 요청 전체 최대 크기 (초과 시 스프링이 413 등으로 거부)
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+# 업로드 파일을 실제로 저장할 디스크 폴더 (프로젝트 루트 기준 상대경로, gitignore됨)
+app:
+  upload-dir: ./upload
 
 mybatis:
   # XML 매퍼 파일 위치 (동적 SQL은 애노테이션보다 XML이 편함)

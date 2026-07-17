@@ -165,6 +165,44 @@ Content-Type: application/json
 #       그 글들은 시드(평문 비번)라 403이 난다. 댓글/첨부 등록 API(#9·#10)가 생기면
 #       "새 글 + 자식 생성 → 삭제"로 원자적 삭제를 제대로 검증할 수 있다.
 
+### ────────────────────────────────────────────────────────────
+### #10 파일 업로드/다운로드
+###  - 업로드는 multipart/form-data (필드명 file). '< 경로'로 실제 파일을 실어 보낸다.
+###  - 아래 filename/경로는 실제 존재하는 파일로 바꿔서 테스트.
+### ────────────────────────────────────────────────────────────
+
+### [업로드] board 1에 파일 첨부 → 기대: 201 + 첨부 정보(attachmentId 등)
+# @name uploadFile
+POST {{host}}/api/boards/1/files
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="sample-upload.txt"
+Content-Type: text/plain
+
+< ./sample-upload.txt
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### [목록] board 1의 첨부 목록 → 방금 올린 게 보이면 성공
+GET {{host}}/api/boards/1/files
+
+### [다운로드] 위 업로드 응답의 attachmentId를 URL에 넣어 실행 → 원본 파일명으로 저장됨
+GET {{host}}/api/files/{{uploadFile.response.body.data.attachmentId}}/download
+
+### [없는 파일 다운로드] → 기대: 404
+GET {{host}}/api/files/999999/download
+
+### [없는 글에 업로드] → 기대: 404
+POST {{host}}/api/boards/999999/files
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="sample-upload.txt"
+Content-Type: text/plain
+
+< ./sample-upload.txt
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
 # ── curl 로 성공 케이스 쏘기(PowerShell에서 curl.exe 사용) ──────────────
 # curl.exe -i -X POST http://localhost:8080/api/boards ^
 #   -H "Content-Type: application/json" ^
