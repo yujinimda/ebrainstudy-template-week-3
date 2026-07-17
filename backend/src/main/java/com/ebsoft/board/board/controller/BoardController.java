@@ -1,12 +1,18 @@
 package com.ebsoft.board.board.controller;
 
+import com.ebsoft.board.board.dto.BoardCreateRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
 import com.ebsoft.board.board.service.BoardService;
 import com.ebsoft.board.common.ApiResponse;
 import com.ebsoft.board.common.PageResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,5 +50,16 @@ public class BoardController {
             return ApiResponse.fail("게시글을 찾을 수 없습니다: " + seq);
         }
         return ApiResponse.ok(board);
+    }
+
+    /**
+     * 게시글 등록: POST /api/boards
+     * JSON 요청 바디를 BoardCreateRequest로 받고(@RequestBody), @Valid로 검증한다.
+     * 새 자원을 만들었으므로 200 OK가 아니라 201 Created로 응답한다.
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<Long>> createBoard(@Valid @RequestBody BoardCreateRequest request) {
+        Long newId = boardService.createBoard(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(newId));
     }
 }

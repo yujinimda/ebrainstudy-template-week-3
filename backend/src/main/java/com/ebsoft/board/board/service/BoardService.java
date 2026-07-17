@@ -1,6 +1,7 @@
 package com.ebsoft.board.board.service;
 
 import com.ebsoft.board.board.domain.Board;
+import com.ebsoft.board.board.dto.BoardCreateRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
 import com.ebsoft.board.board.mapper.BoardMapper;
@@ -8,6 +9,10 @@ import com.ebsoft.board.common.PageResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 게시글 비즈니스 로직. 컨트롤러와 매퍼 사이에서
@@ -53,5 +58,63 @@ public class BoardService {
             return null;
         }
         return BoardResponse.from(board);
+    }
+
+    /**
+     * 게시글 등록. 검증은 컨트롤러(@Valid)에서 이미 끝난 상태로 들어온다.
+     * 여기서는 (1) 비번 해시 (2) 요청→도메인 변환 (3) INSERT (4) 새 글번호 반환 을 한다.
+     *
+     * @return 새로 생성된 게시글의 boardId
+     */
+    public Long createBoard(BoardCreateRequest request) {
+        // TODO(human): 아래 4단계를 직접 구현하세요.
+        //
+        //  1) 비밀번호 해시 (평문 저장 금지!)
+        //     - request.getPassword() 를 SHA-256 으로 해시한 문자열을 만든다.
+        //     - 자바 표준: java.security.MessageDigest.getInstance("SHA-256")
+        //         byte[] digest = md.digest(원문.getBytes(StandardCharsets.UTF_8));
+        //       digest(byte[]) 를 16진수 문자열로 바꿔야 DB(VARCHAR)에 넣기 좋다.
+        //       (hex 변환은 별도 private 헬퍼 메서드로 빼면 깔끔 — 예: String sha256(String raw))
+        //     - MessageDigest.getInstance 는 checked 예외(NoSuchAlgorithmException)를 던진다.
+        //       "SHA-256"은 항상 존재하므로 try/catch로 감싸 RuntimeException으로 바꿔도 된다.
+        //
+        //  2) 요청 DTO → Board 도메인 변환
+        //     - new Board() 후 categoryId/title/content/writer 를 request 값으로 세팅
+        //     - password 에는 (1)에서 만든 "해시값"을 세팅 (원문 아님!)
+        //     - board_id/view_count/created_at 은 세팅하지 않는다 (DB가 채움)
+        //
+        //  3) INSERT 실행
+        //     - boardMapper.insertBoard(board) 호출
+        //     - useGeneratedKeys 덕분에 이 호출 후 board.getBoardId() 에 새 번호가 들어있다.
+        //
+        //  4) 새 글번호 반환
+        //     - return board.getBoardId();
+
+        String hashed = sha256(request.getPassword());
+
+        Board board = new Board();
+        board.setCategoryId(request.getCategoryId());
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        board.setWriter(request.getWriter());
+        board.setPassword(hashed); 
+
+        boardMapper.insertBoard(board);
+
+        return board.getBoardId();
+    }
+
+    private String sha256(String raw) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(raw.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));  // 바이트 → 16진수 2자리
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

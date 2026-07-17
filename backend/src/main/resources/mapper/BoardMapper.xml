@@ -66,6 +66,37 @@
         WHERE board_id = #{boardId}
     </update>
 
+    <!-- TODO(human): 게시글 INSERT 쿼리를 작성하세요.
+         목표 : board 테이블에 새 글 한 줄 추가하고, 생성된 board_id 를 되돌려받기
+
+         뼈대(이미 열어둠) :
+             <insert id="insertBoard"
+                     parameterType="com.ebsoft.board.board.domain.Board"
+                     useGeneratedKeys="true" keyProperty="boardId">
+                 INSERT INTO board (....) VALUES (....)
+             </insert>
+
+         넣을 컬럼 : category_id, title, content, writer, password
+             → 값은 #{categoryId}, #{title}, #{content}, #{writer}, #{password}
+                (Board 객체의 필드명을 그대로 #{} 안에 쓴다)
+
+         빼는 컬럼(=DB가 알아서 채움, 스키마 DEFAULT 참고) :
+             board_id   → AUTO_INCREMENT
+             view_count → DEFAULT 0
+             created_at → DEFAULT CURRENT_TIMESTAMP
+             updated_at → 수정 전이라 NULL
+
+         useGeneratedKeys/keyProperty 의 의미 :
+             INSERT 후 MySQL이 만든 새 board_id 를 넘겨준 Board 객체의 boardId 에 자동 세팅.
+             → Service에서 insert 직후 board.getBoardId() 로 새 글 번호를 알 수 있다.
+    -->
+    <insert id="insertBoard"
+        parameterType="com.ebsoft.board.board.domain.Board"
+        useGeneratedKeys="true"  keyProperty="boardId">
+        INSERT INTO board (category_id, title, content, writer, password)
+        VALUES (#{categoryId}, #{title}, #{content}, #{writer}, #{password})
+    </insert>
+
 
 
 
