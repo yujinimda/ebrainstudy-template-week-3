@@ -3,6 +3,7 @@ package com.ebsoft.board.board.controller;
 import com.ebsoft.board.board.dto.BoardCreateRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
+import com.ebsoft.board.board.dto.BoardUpdateRequest;
 import com.ebsoft.board.board.service.BoardService;
 import com.ebsoft.board.common.ApiResponse;
 import com.ebsoft.board.common.PageResponse;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,5 +63,30 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Long>> createBoard(@Valid @RequestBody BoardCreateRequest request) {
         Long newId = boardService.createBoard(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(newId));
+    }
+
+    /**
+     * 게시글 수정: PUT /api/boards/{seq}
+     * PUT = "그 자원을 이 내용으로 바꿔라"(멱등: 같은 요청 여러 번 보내도 결과 동일).
+     * 서비스가 돌려준 결과(UpdateResult)에 따라 상태코드를 다르게 내려준다:
+     *   - SUCCESS        → 200 OK        (수정됨)
+     *   - NOT_FOUND      → 404 Not Found (그런 글 없음)
+     *   - WRONG_PASSWORD → 403 Forbidden (글은 있으나 비번 불일치 = 권한 없음)
+     * (검증 실패는 @Valid가 진입 전에 400으로 막는다. 이 응답들 다듬기는 #11에서 공통화)
+     */
+    @PutMapping("/{seq}")
+    public ResponseEntity<ApiResponse<Void>> updateBoard(
+            @PathVariable Long seq,
+            @Valid @RequestBody BoardUpdateRequest request) {
+        BoardService.UpdateResult result = boardService.updateBoard(seq, request);
+        if (result == BoardService.UpdateResult.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.fail("게시글을 찾을 수 없습니다: " + seq));
+        }
+        if (result == BoardService.UpdateResult.WRONG_PASSWORD) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.fail("비밀번호가 일치하지 않습니다."));
+        }
+        return ResponseEntity.ok(ApiResponse.ok(null));  // 200 OK
     }
 }

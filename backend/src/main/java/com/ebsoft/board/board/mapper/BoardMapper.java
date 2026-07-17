@@ -30,4 +30,8 @@ public interface BoardMapper {
     // XML에서 useGeneratedKeys 로 새로 생긴 board_id를 board.boardId 에 다시 채워준다.
     // 반환값 = 삽입된 행 수(보통 1).  SQL 본문은 BoardMapper.xml 의 TODO(human).
     int insertBoard(Board board);
+
+    // 게시글 UPDATE. board.boardId 로 대상을 찾아 title/content/categoryId + updated_at 갱신.
+    // 반환값 = 바뀐 행 수(대상 있으면 1, 없으면 0).
+    int updateBoard(Board board);
 }

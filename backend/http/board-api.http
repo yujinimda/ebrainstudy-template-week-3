@@ -67,6 +67,56 @@ Content-Type: application/json
   "password": "aaaaaaaa"
 }
 
+### ────────────────────────────────────────────────────────────
+### #7 수정 API (PUT). Service의 updateBoard TODO(human)를 채운 뒤 성공한다.
+### {seq}는 실제 존재하는 글번호로 바꿔서 테스트 (목록/상세로 확인).
+### 비밀번호는 그 글을 등록할 때 넣은 값이어야 통과한다.
+### ────────────────────────────────────────────────────────────
+
+### [정상] 수정 성공 → 기대: 200 OK (비번이 맞아야 함)
+PUT {{host}}/api/boards/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "title": "수정된 제목입니다",
+  "content": "내용을 이렇게 고쳤습니다.",
+  "password": "abcd12!@"
+}
+
+### [비번 불일치] → 기대: 403 Forbidden
+PUT {{host}}/api/boards/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "title": "비번 틀리면 안 바뀜",
+  "content": "이 수정은 거부되어야 한다.",
+  "password": "wrong99!@"
+}
+
+### [없는 글] → 기대: 404 Not Found
+PUT {{host}}/api/boards/999999
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "title": "존재하지 않는 글 수정 시도",
+  "content": "404가 나와야 정상.",
+  "password": "abcd12!@"
+}
+
+### [검증 실패] 제목 너무 짧음 → 기대: 400 (title @Size 위반, 서비스 진입 전 차단)
+PUT {{host}}/api/boards/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "title": "짧",
+  "content": "내용은 정상 길이입니다.",
+  "password": "abcd12!@"
+}
+
 # ── curl 로 성공 케이스 쏘기(PowerShell에서 curl.exe 사용) ──────────────
 # curl.exe -i -X POST http://localhost:8080/api/boards ^
 #   -H "Content-Type: application/json" ^
