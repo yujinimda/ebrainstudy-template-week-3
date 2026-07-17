@@ -1,6 +1,7 @@
 package com.ebsoft.board.board.controller;
 
 import com.ebsoft.board.board.dto.BoardCreateRequest;
+import com.ebsoft.board.board.dto.BoardDeleteRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
 import com.ebsoft.board.board.dto.BoardUpdateRequest;
@@ -10,6 +11,7 @@ import com.ebsoft.board.common.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,6 +86,30 @@ public class BoardController {
                     .body(ApiResponse.fail("게시글을 찾을 수 없습니다: " + seq));
         }
         if (result == BoardService.UpdateResult.WRONG_PASSWORD) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.fail("비밀번호가 일치하지 않습니다."));
+        }
+        return ResponseEntity.ok(ApiResponse.ok(null));  // 200 OK
+    }
+
+    /**
+     * 게시글 삭제: DELETE /api/boards/{seq}
+     * 비밀번호를 바디로 받아 확인한 뒤, 글과 연관 데이터를 함께 삭제한다.
+     * 결과 → 상태코드: SUCCESS 200 / NOT_FOUND 404 / WRONG_PASSWORD 403.
+     *
+     * (200 vs 204: 204 No Content면 바디가 없다. 여기선 다른 API와 같은 공통 봉투를
+     *  내려주려고 200 + ApiResponse 를 쓴다.)
+     */
+    @DeleteMapping("/{seq}")
+    public ResponseEntity<ApiResponse<Void>> deleteBoard(
+            @PathVariable Long seq,
+            @Valid @RequestBody BoardDeleteRequest request) {
+        BoardService.DeleteResult result = boardService.deleteBoard(seq, request);
+        if (result == BoardService.DeleteResult.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.fail("게시글을 찾을 수 없습니다: " + seq));
+        }
+        if (result == BoardService.DeleteResult.WRONG_PASSWORD) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.fail("비밀번호가 일치하지 않습니다."));
         }

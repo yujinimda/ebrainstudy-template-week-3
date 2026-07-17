@@ -12,3 +12,4 @@
 - [#4 목록 API GET /api/boards (검색 + 페이징)](notes/issue-04-list-api.md)
 - [#6 등록 API POST /api/boards (검증 + 비밀번호 해시)](notes/issue-06-create-api.md)
 - [#7 수정 API PUT /api/boards/{seq} (비밀번호 확인)](notes/issue-07-update-api.md)
+- [#8 삭제 API DELETE /api/boards/{seq} (비번 확인 + 연관 삭제/트랜잭션)](notes/issue-08-delete-api.md)

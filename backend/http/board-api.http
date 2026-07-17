@@ -117,6 +117,54 @@ Content-Type: application/json
   "password": "abcd12!@"
 }
 
+### ────────────────────────────────────────────────────────────
+### #8 삭제 API (DELETE). 비번을 바디로 받는다.
+### 주의: 시드 글(1~24)은 비번이 "평문"으로 저장돼 있어, 올바른 비번이어도
+###       해시 비교에서 어긋나 403이 난다. 그래서 "성공" 테스트는
+###       아래처럼 POST로 새 글을 만든 뒤(해시 저장) 그 글을 지운다.
+### ────────────────────────────────────────────────────────────
+
+### [준비] 삭제 테스트용 글 생성 — 응답의 data(새 글번호)를 아래에서 재사용
+# @name createForDelete
+POST {{host}}/api/boards
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "title": "삭제될 예정인 글",
+  "content": "이 글은 바로 아래 DELETE 테스트로 삭제됩니다.",
+  "writer": "지니",
+  "password": "del123!@"
+}
+
+### [정상] 삭제 성공 → 기대: 200 (방금 만든 글을 같은 비번으로 삭제)
+DELETE {{host}}/api/boards/{{createForDelete.response.body.data}}
+Content-Type: application/json
+
+{
+  "password": "del123!@"
+}
+
+### [비번 불일치] → 기대: 403 (시드 글 2번, 틀린 비번)
+DELETE {{host}}/api/boards/2
+Content-Type: application/json
+
+{
+  "password": "wrong99!@"
+}
+
+### [없는 글] → 기대: 404
+DELETE {{host}}/api/boards/999999
+Content-Type: application/json
+
+{
+  "password": "whatever1!"
+}
+
+# 참고: 자식(댓글/첨부)까지 함께 지워지는 경로는 자식이 달린 글(1·4·10·21)로 확인하는데,
+#       그 글들은 시드(평문 비번)라 403이 난다. 댓글/첨부 등록 API(#9·#10)가 생기면
+#       "새 글 + 자식 생성 → 삭제"로 원자적 삭제를 제대로 검증할 수 있다.
+
 # ── curl 로 성공 케이스 쏘기(PowerShell에서 curl.exe 사용) ──────────────
 # curl.exe -i -X POST http://localhost:8080/api/boards ^
 #   -H "Content-Type: application/json" ^

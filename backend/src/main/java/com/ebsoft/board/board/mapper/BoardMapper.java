@@ -34,4 +34,14 @@ public interface BoardMapper {
     // 게시글 UPDATE. board.boardId 로 대상을 찾아 title/content/categoryId + updated_at 갱신.
     // 반환값 = 바뀐 행 수(대상 있으면 1, 없으면 0).
     int updateBoard(Board board);
+
+    // ── 삭제 (#8). board를 지우기 전에 FK로 물린 자식부터 지워야 한다. ──
+    // 이 글에 달린 댓글 전체 삭제. 반환값 = 지운 행 수.
+    int deleteCommentsByBoardId(@Param("boardId") Long boardId);
+
+    // 이 글에 달린 첨부 전체 삭제. 반환값 = 지운 행 수.
+    int deleteAttachmentsByBoardId(@Param("boardId") Long boardId);
+
+    // 게시글 삭제. 반환값 = 지운 행 수(대상 있으면 1).
+    int deleteBoard(@Param("boardId") Long boardId);
 }

@@ -46,9 +46,11 @@
         <include refid="searchWhere"/>
     </select>
 
-    <!-- 게시글 1건 조회 (예시 — 이걸 참고하세요) -->
+    <!-- 게시글 1건 조회.
+         password 도 조회한다: 상세 응답(BoardResponse)에는 안 나가지만(from()이 안 담음),
+         수정/삭제(#7·#8)의 비밀번호 확인에 board.getPassword() 가 필요하기 때문. -->
     <select id="findById" resultType="com.ebsoft.board.board.domain.Board">
-        SELECT board_id, category_id, title, content, writer, view_count, created_at, updated_at
+        SELECT board_id, category_id, title, content, writer, password, view_count, created_at, updated_at
         FROM board
         WHERE board_id = #{boardId}
     </select>
@@ -109,6 +111,21 @@
             updated_at  = NOW()
         WHERE board_id = #{boardId}
     </update>
+
+    <!-- 삭제 (#8). board는 comment/attachment가 FK로 참조한다(ON DELETE CASCADE 없음).
+         그래서 부모(board)를 먼저 지우면 FK 제약 위반으로 실패한다 → 자식부터 지운다.
+         이 세 DELETE는 Service의 @Transactional로 한 묶음(원자적)으로 실행된다. -->
+    <delete id="deleteCommentsByBoardId">
+        DELETE FROM comment WHERE board_id = #{boardId}
+    </delete>
+
+    <delete id="deleteAttachmentsByBoardId">
+        DELETE FROM attachment WHERE board_id = #{boardId}
+    </delete>
+
+    <delete id="deleteBoard">
+        DELETE FROM board WHERE board_id = #{boardId}
+    </delete>
 
 
 
