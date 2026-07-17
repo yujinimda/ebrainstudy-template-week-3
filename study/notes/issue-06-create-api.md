@@ -60,6 +60,23 @@ public static <T> ApiResponse<T> ok(T data) { return new ApiResponse<>(true, dat
 - 같은 `ok()`인데 담는 게 다름: 상세는 `ok(board)`(글 전체), 등록은 `ok(newId)`(글번호만).
 - `newId`는 확인용이 아니라 **클라이언트에 돌려주려고** 받아둔 실제 결과 번호. 프론트가 이 번호로 방금 쓴 글 상세로 이동 가능.
 
+### 5-1. 이름의 원본 vs 참조 (오늘 새로 안 것)
+- `BoardCreateRequest`라는 이름을 **정한 곳은 그 클래스 파일 자체**(`dto/BoardCreateRequest.java`). 컨트롤러·서비스에 나오는 `BoardCreateRequest`는 새로 만드는 게 아니라 **그 클래스를 가져다 쓰는 것**.
+- `import com.ebsoft.board.board.dto.BoardCreateRequest;` = "그 이름은 저 폴더에 있다"고 알려주는 **주소록**. (비유: 클래스 파일=주민등록, import=주소록)
+- 확인법: 이름 위에서 `F12`(정의로 이동) 또는 `Ctrl+클릭` → 원본 파일로 점프.
+
+### 5-2. 타입 자리 vs 값 자리 — 이름 규칙 (오늘 헷갈렸던 것)
+- **타입은 고정, 변수 이름은 자유.**
+
+| 위치 | 들어갈 것 | 바꿀 수 있나 |
+|---|---|---|
+| `@RequestBody 여기 request` | `BoardCreateRequest`(타입) | ❌ 그 클래스여야 함 |
+| 파라미터 이름 `request` | 아무 이름(req, dto...) | ✅ 자유(쓰는 곳도 같이 바꾸면 됨) |
+| `Long newId = ...` 의 `newId` | 아무 이름 | ✅ 자유(id, savedId...) |
+| `createBoard(여기)` | `request`(값/변수) | — 위에서 정한 변수명과 일치해야 |
+
+- 오늘 실수: `@RequestBody` 뒤(타입 자리)에 `boardService.createBoard(request)`(값)를 넣었고, 서비스 호출 인자에 `BoardCreateRequest`(타입)를 넣었음 → 자리를 맞바꿔 해결.
+
 ### 6. 비밀번호 해시 (평문 저장 금지)
 ```java
 String hashed = sha256(request.getPassword());  // 원문 대신 해시를 저장
