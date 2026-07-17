@@ -25,4 +25,9 @@ public interface BoardMapper {
 
     // 조회수 +1 (반환값 = 실제 바뀐 행 수)
     int increaseViewCount(@Param("boardId") Long boardId);
+
+    // 게시글 INSERT. Board 객체를 통째로 넘긴다(XML에서 #{title}, #{writer}...로 참조).
+    // XML에서 useGeneratedKeys 로 새로 생긴 board_id를 board.boardId 에 다시 채워준다.
+    // 반환값 = 삽입된 행 수(보통 1).  SQL 본문은 BoardMapper.xml 의 TODO(human).
+    int insertBoard(Board board);
 }

@@ -1,1 +1,7 @@
+// Java toolchain 자동 다운로드: build.gradle이 요구하는 JDK 21이 PC에 없으면
+// Gradle이 알아서 받아온다(foojay 저장소 사용). 팀원마다 JDK 버전 달라도 빌드 됨.
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 rootProject.name = 'board-api'
