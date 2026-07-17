@@ -97,6 +97,19 @@
         VALUES (#{categoryId}, #{title}, #{content}, #{writer}, #{password})
     </insert>
 
+    <!-- 게시글 UPDATE (#7). WHERE board_id 로 대상 한 줄만 수정.
+         updated_at = NOW() 로 "수정 시각"을 이때 채운다(등록 땐 NULL이던 컬럼).
+         password / writer / view_count / created_at 은 건드리지 않는다(수정 대상 아님).
+         → password를 안 바꾸므로, 다음 수정 때도 등록 때 정한 비번으로 확인된다. -->
+    <update id="updateBoard" parameterType="com.ebsoft.board.board.domain.Board">
+        UPDATE board
+        SET category_id = #{categoryId},
+            title       = #{title},
+            content     = #{content},
+            updated_at  = NOW()
+        WHERE board_id = #{boardId}
+    </update>
+
 
 
 

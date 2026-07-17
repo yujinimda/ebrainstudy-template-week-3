@@ -4,6 +4,7 @@ import com.ebsoft.board.board.domain.Board;
 import com.ebsoft.board.board.dto.BoardCreateRequest;
 import com.ebsoft.board.board.dto.BoardResponse;
 import com.ebsoft.board.board.dto.BoardSearchRequest;
+import com.ebsoft.board.board.dto.BoardUpdateRequest;
 import com.ebsoft.board.board.mapper.BoardMapper;
 import com.ebsoft.board.common.PageResponse;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,39 @@ public class BoardService {
         boardMapper.insertBoard(board);
 
         return board.getBoardId();
+    }
+
+    /**
+     * 수정 결과 신호. 컨트롤러가 이 값을 보고 HTTP 상태코드를 고른다.
+     * (지금은 이 방식으로 실패를 구분하고, 제대로 된 예외→상태코드 매핑은 #11에서 공통화)
+     */
+    public enum UpdateResult { SUCCESS, NOT_FOUND, WRONG_PASSWORD }
+
+    /**
+     * 게시글 수정. 검증(@Valid)은 컨트롤러에서 이미 끝났다.
+     * 흐름: (1) 대상 글 조회 (2) 비밀번호 확인 (3) 값 갱신.
+     *
+     * @return SUCCESS / NOT_FOUND(글 없음) / WRONG_PASSWORD(비번 불일치)
+     */
+    public UpdateResult updateBoard(Long boardId, BoardUpdateRequest request) {
+        // 1) 대상 글 조회 — 없으면 수정할 게 없다
+        Board board = boardMapper.findById(boardId);
+        if (board == null) {
+            return UpdateResult.NOT_FOUND;
+        }
+
+        // 2) 비밀번호 확인 — 입력 비번을 같은 방식(SHA-256)으로 해시해 저장된 해시와 비교
+        if (!sha256(request.getPassword()).equals(board.getPassword())) {
+            return UpdateResult.WRONG_PASSWORD;
+        }
+
+        // 3) 값 갱신 — password/writer는 그대로 두고 나머지만 교체 (updated_at은 XML의 NOW()가 채움)
+        board.setCategoryId(request.getCategoryId());
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        boardMapper.updateBoard(board);
+        return UpdateResult.SUCCESS;
+
     }
 
     private String sha256(String raw) {
