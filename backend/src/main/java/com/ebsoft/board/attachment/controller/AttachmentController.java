@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,5 +79,20 @@ public class AttachmentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)  // "바이너리 데이터" 라는 표시
                 .body(df.resource());
+    }
+
+    /**
+     * 삭제: DELETE /api/files/{id}
+     * DB 메타 행과 디스크의 실제 파일을 함께 지운다. 없는 id면 404.
+     * (게시글 삭제(#8)와 달리 비번 확인이 없다 — 첨부엔 비번이 없어서 두 경우뿐: 성공/없음)
+     */
+    @DeleteMapping("/api/files/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        boolean deleted = attachmentService.delete(id);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.fail("첨부파일을 찾을 수 없습니다: " + id));
+        }
+        return ResponseEntity.ok(ApiResponse.ok(null));
     }
 }

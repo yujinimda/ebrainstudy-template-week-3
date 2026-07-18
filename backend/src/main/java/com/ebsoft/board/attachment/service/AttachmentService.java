@@ -90,6 +90,35 @@ public class AttachmentService {
         return new DownloadFile(a.getOriginalName(), resource);
     }
 
+    /**
+     * 삭제: DB 메타 행 + 디스크 실제 파일을 함께 지운다.
+     * @return true = 삭제됨, false = 해당 첨부 없음(컨트롤러가 404 처리)
+     */
+    public boolean delete(Long attachmentId) {
+        // 순서가 핵심: 파일 삭제는 트랜잭션 밖(롤백 불가)이라
+        // "실패해도 덜 위험한" DB 삭제를 먼저, 파일 삭제를 나중에 한다.
+
+        // 1) 조회 — 파일명(storedName) 확보가 목적. 행을 지우기 전에 해야 한다
+        Attachment a = attachmentMapper.findById(attachmentId);
+        if (a == null) {
+            return false;   // boolean 메서드라 null 불가 — "없음" 신호는 false
+        }
+
+        // 2) DB 행부터 삭제 — 실패해도 롤백 가능한 쪽을 먼저(Q1)
+        attachmentMapper.deleteById(attachmentId);
+
+        // 3) 디스크 파일 삭제 — 실패하면 "고아 파일"이 남지만 사용자에겐 무해
+        Path path = Paths.get(uploadDir).resolve(a.getStoredName());
+        try {
+            Files.deleteIfExists(path);   // 파일이 이미 없어도 예외 없이 지나감
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 4) 여기까지 왔으면 성공
+        return true;
+    }
+
     /** 특정 글의 첨부 목록. */
     public List<AttachmentResponse> listByBoard(Long boardId) {
         return attachmentMapper.findByBoardId(boardId).stream()
