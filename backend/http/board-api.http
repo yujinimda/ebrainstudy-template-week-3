@@ -27,7 +27,7 @@ Content-Type: application/json
   "categoryId": 1,
   "title": "손으로 만든 첫 등록 API 글",
   "content": "이 요청이 201로 성공하면 등록 API가 동작하는 것.",
-  "writer": "지니",
+  "writer": "유지니",
   "password": "abcd12!@"
 }
 
@@ -202,6 +202,32 @@ Content-Type: text/plain
 
 < ./sample-upload.txt
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ────────────────────────────────────────────────────────────
+### #30 파일 삭제 (DELETE /api/files/{id})
+###  순서: 아래 [삭제용 업로드]로 파일을 먼저 만들고 → 그 id로 삭제한다.
+### ────────────────────────────────────────────────────────────
+
+### [준비] 삭제 테스트용 파일 업로드 — 응답의 attachmentId를 아래에서 재사용
+# @name uploadForDelete
+POST {{host}}/api/boards/1/files
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="sample-upload.txt"
+Content-Type: text/plain
+
+< ./sample-upload.txt
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### [정상] 첨부 삭제 → 기대: 200 (방금 올린 파일 삭제. upload/ 폴더에서도 사라져야 함)
+DELETE {{host}}/api/files/{{uploadForDelete.response.body.data.attachmentId}}
+
+### [재삭제] 같은 id 한 번 더 → 기대: 404 (이미 지워졌으니 없는 첨부)
+DELETE {{host}}/api/files/{{uploadForDelete.response.body.data.attachmentId}}
+
+### [없는 첨부 삭제] → 기대: 404
+DELETE {{host}}/api/files/999999
 
 # ── curl 로 성공 케이스 쏘기(PowerShell에서 curl.exe 사용) ──────────────
 # curl.exe -i -X POST http://localhost:8080/api/boards ^

@@ -29,4 +29,10 @@
         ORDER BY attachment_id
     </select>
 
+    <!-- 첨부 메타 1건 삭제 (실제 디스크 파일 삭제는 서비스가 담당) -->
+    <delete id="deleteById">
+        DELETE FROM attachment
+        WHERE attachment_id = #{attachmentId}
+    </delete>
+
 </mapper>

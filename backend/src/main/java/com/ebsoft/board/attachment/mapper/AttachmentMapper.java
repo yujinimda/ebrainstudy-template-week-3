@@ -20,4 +20,7 @@ public interface AttachmentMapper {
 
     // 특정 글의 첨부 목록.
     List<Attachment> findByBoardId(@Param("boardId") Long boardId);
+
+    // 첨부 메타 1건 삭제. 지운 행 수를 돌려준다(0이면 없던 것).
+    int deleteById(@Param("attachmentId") Long attachmentId);
 }
