@@ -69,6 +69,33 @@ docker compose up -d
 
 최초 기동 시 `docker/initdb/`의 스키마·시드가 자동 적용된다. (2주차와 같은 스키마, 페이징 테스트용으로 시드 데이터를 늘려 둠)
 
+## 백엔드 서버 켜기
+
+DB가 떠 있는 상태에서:
+
+```bash
+cd backend
+./gradlew bootRun
+```
+
+로그에 `Tomcat started on port 8080`이 뜨면 성공. 이 터미널은 서버가 점유하므로 그대로 두고, 종료는 `Ctrl+C`.
+
+서버가 살아있는지 확인:
+
+```bash
+curl http://localhost:8080/api/health
+# 또는 목록 API
+curl "http://localhost:8080/api/boards?size=3"
+```
+
+## API 테스트 (.http 파일)
+
+`backend/http/board-api.http`에 요청 모음이 있다. 실무에서 많이 쓰는 방식.
+
+- **IntelliJ**: 파일을 열면 각 요청 옆에 ▶ 실행 버튼이 뜬다
+- **VS Code**: "REST Client" 확장 설치 → 요청 위 `Send Request` 클릭
+- 요청이 파일로 커밋되어 남으므로 팀원과 같은 요청을 재사용할 수 있다
+
 ## 폰에서 복습
 
 - 이슈 본문과 `study/notes/`가 전부 이 리포에 있어서 폰 GitHub 앱으로 바로 읽을 수 있다.
